@@ -2,17 +2,17 @@
 ============================================================================
 ESTABLECER ZONA PARA EL CORREO:
 ============================================================================
-# nano /var/named/db.empresa.com
+# nano /var/named/db.felcc.com
 
 ============================================================================
 VERIFICAR QUE SE CONFIGURO BIEN:
 ============================================================================
-# named-checkzone empresa.com /var/named/db.empresa.com
+# named-checkzone felcc.com /var/named/db.felcc.com
   OK.
 ============================================================================
 ESTABLECER ZONA INVERSA PARA EL CORREO:
 ============================================================================
-# nano /var/named/rev.empresa.com
+# nano /var/named/rev.felcc.com
 
 ============================================================================
 CONGIGURACION DEL MAIN.CF:
@@ -50,8 +50,8 @@ alias_database = hash:/etc/aliases		--> LO COMENTAMOS
 #home_mailbox = Maildir/			--> ASI DEBE ESTAR
 
 ####################### CONFIG SERVER-MAIL ###########################
-myhostname = correo.empresa.com
-mydomain = empresa.com
+myhostname = correo.felcc.com
+mydomain = felcc.com
 myorigin = $mydomain
 inet_interfaces = all
 inet_protocols = all
@@ -87,8 +87,8 @@ ENVIAR MENSAJE
 =============================================================================================
 METODO 1:
 ---------------------------------------------------------------------------------------------
-# telnet correo.empresa.com 25		Abrir telnet para enviar mensaje
-ehlo correo.empresa.com
+# telnet correo.felcc.com 25		Abrir telnet para enviar mensaje
+ehlo correo.felcc.com
 mail from:ana					--> DE PARTE DE QUIEN ES EL CORREO
 rcpt to:pedro					--> PARA QUE CORREO SE ENVIARÁ
 data						--> COLOCAR COMANDO DATA Y ENTER
@@ -129,10 +129,10 @@ LEER MSM con cat o nano o vi
 ---------------------------------------------------------------------------------------------
 ACLARACION:
 ---------------------------------------------------------------------------------------------
-echo “Escriba el mensaje” | sendmail ana@empresa.com		--> ENVIA SOLO EL MSM CUERPO
-echo “Subject:Escriba el asunto” | sendmail ana@empresa.com	--> ENVIA SOLO ASUNTO
+echo “Escriba el mensaje” | sendmail ana@felcc.com		--> ENVIA SOLO EL MSM CUERPO
+echo “Subject:Escriba el asunto” | sendmail ana@felcc.com	--> ENVIA SOLO ASUNTO
 # yum install mailx
-echo "Mensaje" | mail -s "Asunto" ana@correo.empresa.com	--> ENVIA EL MENSAJE Y EL ASUNTO
+echo "Mensaje" | mail -s "Asunto" ana@correo.felcc.com	--> ENVIA EL MENSAJE Y EL ASUNTO
 ---------------------------------------------------------------------------------------------
 
 
