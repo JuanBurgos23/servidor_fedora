@@ -18,8 +18,8 @@
   # systemctl status httpd  		-->PARA VER EL ESTADO DEL APACHE
     Ctrl+c          			-->PARA SALIR DE STATUS
 
-  Nos dirigimos a un navegador web y entramos en http://localhost
-  https://github.com/kikeProgramer007/docs
+
+  https://github.com/juanBurgos23/
 ===================================================================================
   INSTALAR MYSQL (MariaDB):
 
@@ -33,8 +33,8 @@
 
   mysql> SHOW databases;                	-->MUESTRA LAS BASE DE DATOS
   mysql> CREATE DATABASE dbempleados;   		-->CREAMOS UNA BASE DE DATOS CON NOMBRE dbpersonal
-  mysql> CREATE USER 'enrique'@'localhost' IDENTIFIED BY '12345';   	   -->CREAMOS UN USUARIO MAS SU CONTRASEÑA
-  mysql> GRANT ALL PRIVILEGES ON dbempleados.* TO 'enrique'@'localhost';    -->OTORGAR TODOS LOS PERMISOS AL USUARIO
+  mysql> CREATE USER 'juan'@'localhost' IDENTIFIED BY '12345';   	   -->CREAMOS UN USUARIO MAS SU CONTRASEÑA
+  mysql> GRANT ALL PRIVILEGES ON dbempleados.* TO 'juan'@'localhost';    -->OTORGAR TODOS LOS PERMISOS AL USUARIO
   mysql> FLUSH PRIVILEGES;           -		->EJECUTAR DICHOS PRIVILEGIOS
   mysql>exit            			--> PARA SALIR DE MARIADB
 ===================================================================================
