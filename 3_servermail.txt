@@ -1,0 +1,170 @@
+
+============================================================================
+ESTABLECER ZONA PARA EL CORREO:
+============================================================================
+# nano /var/named/db.empresa.com
+
+============================================================================
+VERIFICAR QUE SE CONFIGURO BIEN:
+============================================================================
+# named-checkzone empresa.com /var/named/db.empresa.com
+  OK.
+============================================================================
+ESTABLECER ZONA INVERSA PARA EL CORREO:
+============================================================================
+# nano /var/named/rev.empresa.com
+
+============================================================================
+CONGIGURACION DEL MAIN.CF:
+============================================================================
+# nano /etc/postfix/main.cf	--> IR A ESE DIRECTORIO Y ABRIR EL ARCHIVO main.cf
+============================================================================
+#####################  COMENTAR LAS SGTES LINEAS ########################
+============================================================================
+
+#myhostname = host.domain.tld		--> DEBE ESTAR COMENTADO
+#mydomain = domain.tld			--> DEBE ESTAR COMENTADO
+#myorigin = $mydomain			--> DEBE ESTAR COMENTADO
+
+inet_interfaces = localhost		--> LO COMENTAMOS
+#inet_interfaces = localhost		--> ASI DEBE ESTAR	
+
+inet_protocols = all			--> LO COMENTAMOS
+#inet_protocols = all			--> ASI DEBE ESTAR	
+
+mydestination = $myhostname, localhost.$mydomain, localhost			--> COMENTARLO(shif+3)
+#mydestination = $myhostname, localhost.$mydomain, localhost			--> ASI DEBE ESTAR
+#mydestionation = $myhostname, localhost.$mydomain, localhost, $mydomain	--> ASI DEBE ESTAR
+
+unknown_local_recipient_reject_code = 550	--> LO COMENTAMOS		
+#unknown_local_recipient_reject_code = 550	--> ASI DEBE ESTAR
+
+#mynetworks = 168.100.3.0/28, 127.0.0.0/8	--> ASI DEBE ESTAR
+
+alias_maps = hash:/etc/aliases			--> LO COMENTAMOS
+#alias_maps = hash:/etc/aliases			--> ASI DEBE ESTAR	
+
+alias_database = hash:/etc/aliases		--> LO COMENTAMOS
+#alias_database = hash:/etc/aliases		--> ASI DEBE ESTAR	
+
+#home_mailbox = Maildir/			--> ASI DEBE ESTAR
+
+####################### CONFIG SERVER-MAIL ###########################
+myhostname = correo.empresa.com
+mydomain = empresa.com
+myorigin = $mydomain
+inet_interfaces = all
+inet_protocols = all
+mydestination = $myhostname, localhost.$mydomain, localhost, $mydomain
+unknown_local_recipient_reject_code = 550
+mynetworks = 10.20.30.0/28, 127.0.0.0/8
+alias_maps = hash:/etc/aliases
+alias_database = hash:/etc/aliases
+home_mailbox = Maildir/
+######################################################################
+
+============================================================================
+REINICIAR POSTFIX, NETWORK, BIND
+============================================================================
+# systemctl restart postfix.service
+# systemctl restart named.service
+# systemctl restart NetworkManager.service
+# firewal-cmd –reload
+============================================================================
+
+============================================================================
+CREAR USUARIOS
+============================================================================
+# adduser ana
+# passwd ana
+   Nueva Contraseña: ana
+   Vuelva a escribir la contraseña: ana
+# mkdir /home/ana/Maildir			--> CREAR CARPETA PARA ALMACENAR MSM
+# chown ana:ana -R /home/ana/Maildir		--> OTORGAR PERMISOS A USUARIO
+
+=============================================================================================
+ENVIAR MENSAJE
+=============================================================================================
+METODO 1:
+---------------------------------------------------------------------------------------------
+# telnet correo.empresa.com 25		Abrir telnet para enviar mensaje
+ehlo correo.empresa.com
+mail from:ana					--> DE PARTE DE QUIEN ES EL CORREO
+rcpt to:pedro					--> PARA QUE CORREO SE ENVIARÁ
+data						--> COLOCAR COMANDO DATA Y ENTER
+hola este es un mensaje de prueba		--> MENSAJE
+.						--> PUNTO Y ENTER PARA FINALIZAR
+quit						--> SALIR
+
+REVIZAR MENSAJE
+# ll /home/pedro/Maildir/new			--> MOSTRAR MENSAJES
+# cd /home/pedro/Maildir/new			--> RUTA DONDE SE ALMACENAN LOS MSM
+# ll						--> MOSTRAR MENSAJES	
+ 
+LEER MSM con cat o nano o vi
+---------------------------------------------------------------------------------------------
+METODO 2:
+---------------------------------------------------------------------------------------------
+
+$ whoami					--> VER USUARIO ACTUAL
+$ sudo su pedro					--> UTILIZAR USUARIO PEDRO
+
+[pedro@fedora]$ echo “correo de prueba” | sendmail ana@panaderia.com
+
+REVIZAR MENSAJE
+# ll /home/ana/Maildir/new			--> MOSTRAR MENSAJES
+# cd /home/ana/Maildir/new			--> RUTA DONDE SE ALMACENAN LOS MSM
+LEER MSM con cat o nano o vi
+
+$ exit
+
+$ sudo su ana					--> UTILIZAR USUARIO ANA
+[pedro@fedora]$ echo “Subject:correo de prueba” | sendmail pedro@panaderia.com
+
+REVIZAR MENSAJE
+# ll /home/ana/Maildir/new			--> MOSTRAR MENSAJES
+# cd /home/ana/Maildir/new			--> RUTA DONDE SE ALMACENAN LOS MSM
+LEER MSM con cat o nano o vi
+
+---------------------------------------------------------------------------------------------
+ACLARACION:
+---------------------------------------------------------------------------------------------
+echo “Escriba el mensaje” | sendmail ana@empresa.com		--> ENVIA SOLO EL MSM CUERPO
+echo “Subject:Escriba el asunto” | sendmail ana@empresa.com	--> ENVIA SOLO ASUNTO
+# yum install mailx
+echo "Mensaje" | mail -s "Asunto" ana@correo.empresa.com	--> ENVIA EL MENSAJE Y EL ASUNTO
+---------------------------------------------------------------------------------------------
+
+
+
+===========================================================================================
+(CONFIGURACION OPCIONAL) CONF PARA Q AL CREAR USUARIO SE CREE SU CARPETA Maildir AUTOMATICA.
+===========================================================================================
+# mkdir /etc/skel/Maildir 		--> Para crear la carpeta
+# nano /etc/skel/.muttrc		--> Para que el proceso mutt pueda leer el contenido de Maildir
+
+COPIAR Y PEGAR DENTRO DEL ARCHIVO ".muttrc":
+
+set mbox_type=Maildir
+set folder=”~/Maildir”
+set mask=”!^\\.[^.]“
+set mbox=”~/Maildir”
+set record=”+.Sent”
+set postponed=”+.Drafts”
+set spoolfile=”~/Maildir”
+
+GUARDAMOS CON "CTRL" + "X" LUEGO "S" Y ENTER.
+-------------------------------------------------------------------------------------------
+NUEVA MANERA DE CREAR NUEVO USUARIO
+-------------------------------------------------------------------------------------------
+# adduser administrador
+# passwd administrador
+   Nueva Contraseña: administrador
+   Vuelva a escribir la contraseña: administrador
+===========================================================================================
+
+
+
+
+BUSCAR LA MANERA DE QUE DOVECOT 100 PRE ESTE ACTIVO
+

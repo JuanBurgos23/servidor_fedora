@@ -1,0 +1,99 @@
+
+ victor_12@dominio.com
+ victor_12@empresa.com
+
+ doncente@uagrm.edu.bo
+
+ ana_21@yahoo.com
+ otto.gonzales@outlook.com
+ enrique-123@hotmail.com
+ yolanda_11@gmail.com
+
+
+SISTEMAS OPERATIVOS FORMATO ISO:
+Ubuntu 20.04.4 LTE : https://releases.ubuntu.com/20.04/
+FEDORA SERVER 36: https://getfedora.org/es/server/download/
+
+==================== 1RA CONFIGURACION =====================
+nano /etc/hosts
+==================================================================== 
+...
+127.0.0.1  fedora.empresa.com fedora localhost localhost.localdomain
+...
+=================== 2DA CONFIGURACION ===================
+ruta file "/etc/named.conf"
+=========================================================
+...
+zone "empresa.com" {
+        type master;
+        file "/var/named/db.empresa.com";
+};
+
+zone "30.20.10.in-addr.arpa" {
+        type master;
+        file "/var/named/rev.empresa.com";
+};
+
+
+========================= 3RA CONFIGURACION===========================
+nano cd/var/named/db.empresa.com"
+=========================================================
+$TTL 604800
+@	IN	SOA empresa.com admin.empresa.com. (
+	20220605	;serial
+	604800		;refresh
+	86400		;retry
+	2419200		;expire
+	604800 )	;TTL  negativo
+
+	IN	NS	fedora.empresa.com.
+fedora	IN	A	10.20.30.6
+correo	IN	A	10.20.30.6
+
+sub	IN	CNAME	fedora
+www	IN	CNAME	fedora
+@	IN	MX	10	correo
+
+
+=================== 4TA CONFIGURACION ===================
+nano /var/named/rev.empresa.com
+=========================================================
+$TTL 604800
+@	IN	SOA empresa.com	admin.empresa.com. (
+	20220605	;serial
+	604800		;refresh
+	86400		;retry
+	2419200		;expire
+	604800 )	;TTL  negativo
+
+	IN	NS	fedora.empresa.com.
+6	IN	PTR	fedora.empresa.com.
+6	IN	PTR	correo.empresa.com.
+
+
+=================== 5TA CONFIGURACION ===================
+nano /etc/resolv.conf
+=========================================================
+...
+nameserver 10.20.30.6
+...
+=========================================================
+DAR PERMISOS DE AL FIREWALL PARA UTILIZAR EL DNS
+# firewall-cmd --permanent --add-service=dns
+# firewall-cmd --permanent --add-service=http
+# firewall-cmd --permanent --add-service= https
+=========================================================
+HABILITAMOS LOS SGTES PUERTOS:
+# firewall-cmd –permanent –add-port=53/tcp
+# firewall-cmd –permanent –add-port=53/udp
+# firewall-cmd –permanent –add-port=80/tcp
+# firewall-cmd –permanent –add-port=80/udp
+=========================================================
+FINALMENTE INICIAMOS EL SERVICIO:
+# systemctl enable named
+# systemctl start named
+=========================================================
+REINICIAMOS ALGUNO FIREWALL,NETWORK Y BIND:
+# firewall-cdm --reload
+# sudo systemctl restart NetworkManager.service
+# systemctl restart named
