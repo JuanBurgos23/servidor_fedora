@@ -1,99 +1,124 @@
+ENTRAR COMO SUPER USUARIO
+su
+contraseña:
 
- victor_12@dominio.com
- victor_12@empresa.com
+ACTUALIZAR PAQUETES
+apt-get update
+apt-get upgrade
 
- doncente@uagrm.edu.bo
+INSTALAMOS BIND9
+apt-get install bind9 bind9utils dnsutils
 
- ana_21@yahoo.com
- otto.gonzales@outlook.com
- enrique-123@hotmail.com
- yolanda_11@gmail.com
+ENTRAMOS A LA CARPETA BIND
+cd /etc/bind
+ls (para ver todos los archivos)
+	
+CONFIGURAMOS EL ARCHIVO NAMED.CONF.LOCAL
+nano named.conf.local
 
-
-SISTEMAS OPERATIVOS FORMATO ISO:
-Ubuntu 20.04.4 LTE : https://releases.ubuntu.com/20.04/
-FEDORA SERVER 36: https://getfedora.org/es/server/download/
-
-==================== 1RA CONFIGURACION =====================
-nano /etc/hosts
-==================================================================== 
-...
-127.0.0.1  fedora.empresa.com fedora localhost localhost.localdomain
-...
-=================== 2DA CONFIGURACION ===================
-ruta file "/etc/named.conf"
-=========================================================
-...
-zone "empresa.com" {
-        type master;
-        file "/var/named/db.empresa.com";
+AGREGAMOS LAS SIGUIENTES LINEAS (para este ejemplo estoy ocupando el dominio tecnoweb.com, ahi deben cambiarlo con su dominio)
+Y MI IP ES 192.168.1.12
+//para la zona directa
+zone "tecnoweb.com"{
+ type master;
+ file "/etc/bind/db.tecnoweb.com";
 };
 
-zone "30.20.10.in-addr.arpa" {
-        type master;
-        file "/var/named/rev.empresa.com";
-};
+//para la zona inversa coon la ip 192.168.1.12
+zone "1.168.192.in-addr.arpa" {
+ type master;
+ file "/etc/bind/db.1.168.192";
+}
 
+PARA LA ZONA INVERSA SABER LA IP DE LA MAQUINA
+ifconfig
+SI NO LE FUNCIONA EL COMANDO IFCONFIG INSTALAR NET-TOOLS
+apt-get install net-tools
 
-========================= 3RA CONFIGURACION===========================
-nano cd/var/named/db.empresa.com"
-=========================================================
-$TTL 604800
-@	IN	SOA empresa.com admin.empresa.com. (
-	20220605	;serial
-	604800		;refresh
-	86400		;retry
-	2419200		;expire
-	604800 )	;TTL  negativo
+PARA SABER SI ESTA TODO BIEN LA CONFIGURACION DE NAMED.CONF.LOCAL
+named-checkconf named.conf.local
 
-	IN	NS	fedora.empresa.com.
-fedora	IN	A	10.20.30.6
-correo	IN	A	10.20.30.6
+COPIAMOS LOS ARCHIVOS DB.LOCAL CON EL NOMBRE DB.TECNOWEB.COM (para la zona directa)
+cp db.local db.tecnoweb.com
+COPIAMOS EL SIGUIENTE FORMATO
+                           
+$ORIGIN tecnoweb.com.
+$TTL 86400 ; 1 day
 
-sub	IN	CNAME	fedora
-www	IN	CNAME	fedora
-@	IN	MX	10	correo
+@ IN SOA tecnoweb.com. root.tecnoweb.com. (
+    3         ; Serial
+    604800    ; Refresh (1 week)
+    86400     ; Retry (1 day)
+    2419200   ; Expire (4 weeks)
+    86400 )   ; Negative Cache TTL (1 day)
 
+; Servidor de nombres
+@ IN NS tecnoweb.com.
 
-=================== 4TA CONFIGURACION ===================
-nano /var/named/rev.empresa.com
-=========================================================
-$TTL 604800
-@	IN	SOA empresa.com	admin.empresa.com. (
-	20220605	;serial
-	604800		;refresh
-	86400		;retry
-	2419200		;expire
-	604800 )	;TTL  negativo
+; Registros A
+@      IN A 192.168.1.12
+correo	IN	A	192.168.1.11
 
-	IN	NS	fedora.empresa.com.
-6	IN	PTR	fedora.empresa.com.
-6	IN	PTR	correo.empresa.com.
+; Alias (CNAME)
+www	IN	CNAME	tecnoweb.com.
+pop3	IN	CNAME	correo.tecnoweb.com.
+smtp	IN	CNAME	correo.tecnoweb.com.
+; Registro MX
+@	IN	MX	10 correo.tecnoweb.com.
 
+COPIAMOS LOS ARCHIVOS DB.255 CON EL NOMBRE DB.1.168.192 (para la zona inversa)
+cp db.255 db.1.168.192
 
-=================== 5TA CONFIGURACION ===================
+COONFIGURAMOS LA INVERSA
+;
+; BIND reverse data file for broadcast zone
+;
+$TTL    604800
+@       IN      SOA     tecnoweb.com. root.tecnoweb.com. (
+                              1         ; Serial
+                         604800         ; Refresh
+                          86400         ; Retry
+                        2419200         ; Expire
+                         604800 )       ; Negative Cache TTL
+;
+@       IN      NS      tecnoweb.com.
+12      IN      PTR     tecnoweb.com.
+
+(DONDE ESTA EL 12 ES EL ULTIMO NUMERO DE LA IP 192.168.1.12  "12")
+
+AHORA VERIFICAMOS SI ESTA TODO BIEN EL SINTAXIS
+named-checkzone tecnoweb.com db.tecnoweb.com
+LO MISMO PARA LA INVERSA
+named-checkzone 1.168.192.in-adrr.arpa db.1.168.192
+
+REINICIAMOS EL SERVICIO BIND9
+service bind9 restart
+systemctl status bind9  (PARA VER EL ESTADO DEL SERVICIO TIENE QUE ESTAR RUNNIG)
+
+CONFIGURAMOS EL SERVICIO POR DEFECTO VIENE 127.0.0.53 PONEMOS NUESTRA IP
+COMPROBAR EL SERVICIO
+nslookup service
+CONFIGURAR EL SERVICIO
 nano /etc/resolv.conf
-=========================================================
-...
-nameserver 10.20.30.6
-...
-=========================================================
-DAR PERMISOS DE AL FIREWALL PARA UTILIZAR EL DNS
-# firewall-cmd --permanent --add-service=dns
-# firewall-cmd --permanent --add-service=http
-# firewall-cmd --permanent --add-service= https
-=========================================================
-HABILITAMOS LOS SGTES PUERTOS:
-# firewall-cmd –permanent –add-port=53/tcp
-# firewall-cmd –permanent –add-port=53/udp
-# firewall-cmd –permanent –add-port=80/tcp
-# firewall-cmd –permanent –add-port=80/udp
-=========================================================
-FINALMENTE INICIAMOS EL SERVICIO:
-# systemctl enable named
-# systemctl start named
-=========================================================
-REINICIAMOS ALGUNO FIREWALL,NETWORK Y BIND:
-# firewall-cdm --reload
-# sudo systemctl restart NetworkManager.service
-# systemctl restart named
+PONE LA IP EN NAMESERVER
+nameserver 192.168.1.12
+
+COMPROBAR EL SERVICIO (TIENE QUE SALIR LA IP QUE PUSIMOS)
+nslookup
+> service
+> tecnoweb.com
+> 192.168.1.12
+> exit
+
+LIMPIAMOS EL CACHE
+rndc flush
+
+VERIFICAMOS EL DOMINIO 
+dig tecnoweb.com
+dig servidor.tecnoweb.com
+ping servidor.tecnoweb.com
+ctrl+c (para parar el ping)
+
+VERFICAMOS DE UNA MAQUINA CLIENTE
+ping servidor.tecnoweb.com
+
