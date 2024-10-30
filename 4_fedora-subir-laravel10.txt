@@ -5,8 +5,8 @@ CREAR BASE DE DATOS DE MY SQL:
 
   mysql> SHOW databases;                	-->MUESTRA LAS BASE DE DATOS
   mysql> CREATE DATABASE dbpanaderia;   		-->CREAMOS UNA BASE DE DATOS CON NOMBRE dbpersonal
-  mysql> CREATE USER 'enrique'@'localhost' IDENTIFIED BY '12345';   	   -->CREAMOS UN USUARIO MAS SU CONTRASEÑA
-  mysql> GRANT ALL PRIVILEGES ON dbempleados.* TO 'enrique'@'localhost';    -->OTORGAR TODOS LOS PERMISOS AL USUARIO
+  mysql> CREATE USER 'juan'@'localhost' IDENTIFIED BY '12345';   	   -->CREAMOS UN USUARIO MAS SU CONTRASEÑA
+  mysql> GRANT ALL PRIVILEGES ON dbempleados.* TO 'juan'@'localhost';    -->OTORGAR TODOS LOS PERMISOS AL USUARIO
   mysql> FLUSH PRIVILEGES;           -		->EJECUTAR DICHOS PRIVILEGIOS
   mysql>exit            			--> PARA SALIR DE MARIADB
 ==================================================================================
@@ -83,20 +83,20 @@ COPIAMOS Y PEGAMOS (LO PEGAMOS DEBAJO DE APP_URL=..):
      DB_CONNECTION=mysql
      DB_HOST=127.0.0.1
      DB_PORT=3306
-     DB_DATABASE=dbpanaderia
-     DB_USERNAME=enrique
+     DB_DATABASE=felcc
+     DB_USERNAME=juan
      DB_PASSWORD=12345
      ...
      # CONFIGURACION PARA EL SERVIDOR FEDORA
      ...
      MAIL_MAILER=smtp
-     MAIL_HOST=correo.empresa.com
+     MAIL_HOST=correo.felcc.com
      MAIL_PORT=25
-     MAIL_USERNAME=contacto@empresa.com
-     MAIL_PASSWORD=contacto
+     MAIL_USERNAME=admin@felcc.com
+     MAIL_PASSWORD=juan1224
      MAIL_ENCRYPTION=null
-     MAIL_FROM_ADDRESS=contacto@empresa.com
-     MAIL_FROM_NAME="Contacto-Empresa"
+     MAIL_FROM_ADDRESS=admin@felcc.com
+     
      ...
 
   PARA GUARDAR CAMBIOS PRESIONAMOS:
@@ -110,11 +110,11 @@ COPIAMOS Y PEGAMOS (LO PEGAMOS DEBAJO DE APP_URL=..):
   @@@@@@@@@@ ARREGLAR REPOSITORIO PARA EVITAR ESTO @@@@@@@@@@
 
   cd /var/www/html/app/Models
-  sudo /mv repartidor.php Repartidor.php
-  sudo /mv Ingrediente.php ingrediente.php
+  sudo /mv oficial.php Oficial.php
+  sudo /mv fiscal.php Fiscal.php
 
   cd /var/www/html/app/Http/Controllers
-  sudo /mv Administracion.php administracion.php
+  sudo /mv denuncia.php Denuncia.php
 
   @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
   
@@ -143,8 +143,7 @@ DAR PERMISO PARA ENVIAR CORREO DESDE FEDORA:
 
 FIN.....
 
-http://localhost/		--> REALIZAR PEDIDO SIN ERRORES (RED-WAN) 
-http://www.empresa.com		--> PARA ENVIAR CORREO SIN ERRORES (RED-LAN) 
+
 
 ************** SI HAY ERRORES ***************
 # sudo chown -R apache:apache /var/www/html
